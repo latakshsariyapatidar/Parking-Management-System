@@ -39,7 +39,7 @@ public:
         return this->parkingSpaces.size();
     }
 
-    int getAvailableSpaceCount(const VehicleCategory &category) const
+    int getCategorySpaceAvailableCount(const VehicleCategory &category) const
     {
         int count = 0;
         for (int i = 0; i < parkingSpaces.size(); i++)
@@ -53,7 +53,7 @@ public:
         return count;
     }
 
-    int findAvailableSpaceId(const VehicleCategory &category) const
+    int findCategorySpaceAvailableId(const VehicleCategory &category) const
     {
         int spaceId = -1;
 
@@ -78,7 +78,7 @@ public:
         return spaceId;
     }
 
-    void parkVehicleInSpace(const Vehicle &vehicle, int spaceId)
+    void parkVehicleInSpaceId(const Vehicle &vehicle, int spaceId)
     {
         for (int i = 0; i < parkingSpaces.size(); i++)
         {
@@ -93,7 +93,7 @@ public:
         throw std::invalid_argument("The space id does not exist on the floor");
     }
 
-    void releaseSpaceById(int spaceId)
+    void releaseSpaceId(int spaceId)
     {
         for (int i = 0; i < parkingSpaces.size(); i++)
         {
@@ -108,8 +108,35 @@ public:
         throw std::invalid_argument("The space id does not exist on the floor");
     }
 
-    int getFloor() const
+    int getFloorNumber() const
     {
         return this->floorNumber;
+    }
+
+    bool parkingSpaceExists(int spaceId) const
+    {
+
+        for (int j = 0; j < parkingSpaces.size(); j++)
+        {
+            if (parkingSpaces[j].getSpaceId() == spaceId)
+            {
+                return true;
+            }
+        }
+
+
+        return false;
+    }
+
+    bool hasCommonSpaceId(const ParkingFloor &floor) const
+    {
+        for (int i = 0; i < parkingSpaces.size(); i++){
+            int currentId = parkingSpaces[i].getSpaceId();
+            if (floor.parkingSpaceExists(currentId)){
+                return true;
+            }
+        }
+
+        return false;
     }
 };
