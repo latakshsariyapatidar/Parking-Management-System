@@ -2,6 +2,7 @@
 #include "ParkingFacility.h"
 #include "ParkingTicket.h"
 #include "Vehicle.h"
+#include "ParkingFeeCalculator.h"
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -13,6 +14,7 @@ private:
     ParkingFacility facility;
     std::vector<ParkingTicket> tickets;
     int nextTicketId{1};
+    ParkingFeeCalculator feeCalculator;
 
 public:
     ParkingManager(const ParkingFacility &facility)
@@ -70,14 +72,28 @@ public:
         return ticket.getTicketId();
     }
 
-
-    ParkingTicket getTicketById(int ticketId) const{
-        for (int i = 0; i < tickets.size(); i++){
-            if (tickets[i].getTicketId() == ticketId){
+    ParkingTicket getTicketById(int ticketId) const
+    {
+        for (int i = 0; i < tickets.size(); i++)
+        {
+            if (tickets[i].getTicketId() == ticketId)
+            {
                 return tickets[i];
             }
         }
 
         throw std::invalid_argument("The ticket id does not exist");
+    }
+
+    int calculateFeeForTicket(int ticketId, std::chrono::system_clock::time_point exitTime) const
+    {
+        ParkingTicket ticket = getTicketById(ticketId);
+
+        if (ticket.getTicketStatus() == TicketStatus::CLOSED)
+        {
+            throw std::runtime_error("The ticket is already closed");
+        }
+
+        return feeCalculator.calculateFees(ticket.getVehicleCategory(), ticket.getEntryTime(), exitTime);
     }
 };
