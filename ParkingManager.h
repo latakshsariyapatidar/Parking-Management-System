@@ -19,7 +19,18 @@ private:
     std::vector<PaymentRecord> payments;
     int nextTransactionId{1};
 
-    
+    int findTicketIndexById(int ticketId) const
+    {
+        for (int i = 0; i < tickets.size(); i++)
+        {
+            if (tickets[i].getTicketId() == ticketId)
+            {
+                return i;
+            }
+        }
+
+        throw std::invalid_argument("The ticket ID does not exist");
+    }
 
 public:
     ParkingManager(const ParkingFacility &facility)
@@ -79,15 +90,9 @@ public:
 
     ParkingTicket getTicketById(int ticketId) const
     {
-        for (int i = 0; i < tickets.size(); i++)
-        {
-            if (tickets[i].getTicketId() == ticketId)
-            {
-                return tickets[i];
-            }
-        }
 
-        throw std::invalid_argument("The ticket id does not exist");
+        int ticketIndex = findTicketIndexById(ticketId);
+        return tickets[ticketIndex];
     }
 
     int calculateFeeForTicket(int ticketId, std::chrono::system_clock::time_point exitTime) const
