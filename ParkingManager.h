@@ -7,6 +7,7 @@
 #include <vector>
 #include <stdexcept>
 #include <chrono>
+#include "PaymentRecord.h"
 
 class ParkingManager
 {
@@ -15,6 +16,10 @@ private:
     std::vector<ParkingTicket> tickets;
     int nextTicketId{1};
     ParkingFeeCalculator feeCalculator;
+    std::vector<PaymentRecord> payments;
+    int nextTransactionId{1};
+
+    
 
 public:
     ParkingManager(const ParkingFacility &facility)
