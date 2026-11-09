@@ -3,6 +3,7 @@
 #include "Vehicle.h"
 #include <stdexcept>
 #include <chrono>
+#include <optional>
 
 enum class TicketStatus
 {
@@ -20,6 +21,7 @@ private:
     std::string registrationNumber;
     VehicleCategory category;
     TicketStatus ticketStatus;
+    std::optional<std::chrono::system_clock::time_point> exitTime;
 
 public:
     ParkingTicket(int ticketId, const Vehicle &vehicle, int floorNumber, int spaceId, std::chrono::system_clock::time_point entryTime)
@@ -84,11 +86,14 @@ public:
         return this->entryTime;
     }
 
-    void closeTicket(){
-        if (this -> ticketStatus == TicketStatus::CLOSED){
+    void closeTicket(std::chrono::system_clock::time_point closedAt)
+    {
+        if (this->ticketStatus == TicketStatus::CLOSED)
+        {
             throw std::runtime_error("The ticket is already closed");
         }
-
-        this -> ticketStatus = TicketStatus::CLOSED;
+        
+        this -> exitTime = closedAt;
+        this->ticketStatus = TicketStatus::CLOSED;
     }
 };

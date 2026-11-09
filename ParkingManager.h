@@ -32,6 +32,15 @@ private:
         throw std::invalid_argument("The ticket ID does not exist");
     }
 
+    int recordSuccessfulPayment(int ticketId, int amountPaid, PaymentMethod paymentMethod, std::chrono::system_clock::time_point paymentTime)
+    {
+        PaymentRecord paymentRecord(nextTransactionId, ticketId, amountPaid, paymentMethod, paymentTime);
+        payments.push_back(paymentRecord);
+        nextTransactionId++;
+
+        return paymentRecord.getTransactionId();
+    }
+
 public:
     ParkingManager(const ParkingFacility &facility)
     {
@@ -105,5 +114,39 @@ public:
         }
 
         return feeCalculator.calculateFees(ticket.getVehicleCategory(), ticket.getEntryTime(), exitTime);
+    }
+
+    bool processVehicleExit(int ticketId, PaymentMethod paymentMethod, bool paymentSucceeded, std::chrono::system_clock::time_point exitTime)
+    {
+        int ticketIndex = findTicketIndexById(ticketId);
+        ParkingTicket &ticket = tickets[ticketIndex];
+
+        if (ticket.getTicketStatus() == TicketStatus::CLOSED)
+        {
+            throw std::runtime_error("The ticket is already closed");
+        }
+
+        int farePrice = calculateFeeForTicket(ticket.getTicketId(), exitTime);
+
+        if (paymentSucceeded == false)
+        {
+            return false;
+        }
+
+        recordSuccessfulPayment(ticket.getTicketId(), farePrice, paymentMethod, exitTime);
+
+        try
+        {
+            facility.releaseSpaceAtFloor(ticket.getFloorNumber(), ticket.getSpaceId());
+
+            ticket.closeTicket();
+        }
+        catch (...)
+        {
+            payments.pop_back();
+            throw;
+        }
+
+        return true;
     }
 };
